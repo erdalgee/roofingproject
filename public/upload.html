@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Belgian Roofing API - Supplier Portal</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+        input[type="text"], input[type="password"], select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+        .file-input-wrapper input[type=file] {
+            position: absolute;
+            left: -9999px;
+        }
+        .file-input-label {
+            display: block;
+            padding: 40px 20px;
+            border: 3px dashed #ccc;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #f8f9fa;
+        }
+        .file-input-label:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+        .file-input-label.has-file {
+            border-color: #28a745;
+            background: #d4edda;
+        }
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 16px;
+            border-radius: 8px;
+            display: none;
+        }
+        .result.success {
+            display: block;
+            background: #d4edda;
+            border: 1px solid #28a745;
+            color: #155724;
+        }
+        .result.error {
+            display: block;
+            background: #f8d7da;
+            border: 1px solid #dc3545;
+            color: #721c24;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .loading.show {
+            display: block;
+        }
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .template-download {
+            margin-top: 20px;
+            padding: 16px;
+            background: #e3f2fd;
+            border-radius: 8px;
+        }
+        .template-download a {
+            color: #1976d2;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .template-download a:hover {
+            text-decoration: underline;
+        }
+        .info-box {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+        .info-box h3 {
+            color: #856404;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+        .info-box ul {
+            color: #856404;
+            margin-left: 20px;
+        }
+        .info-box li {
+            margin-bottom: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏗️ Supplier Portal</h1>
+        <p class="subtitle">Upload your product stock data to Belgian Roofing API</p>
+        
+        <div class="info-box">
+            <h3>📋 CSV Format Required:</h3>
+            <ul>
+                <li><strong>sku</strong> - Product code (unique)</li>
+                <li><strong>name</strong> - Product name</li>
+                <li><strong>category</strong> - Category (e.g., Dakpannen)</li>
+                <li><strong>stock_quantity</strong> - Current stock</li>
+                <li><strong>price</strong> - Price in EUR</li>
+                <li><strong>supplier_name</strong> - Your company name</li>
+            </ul>
+        </div>
+
+        <form id="uploadForm">
+            <div class="form-group">
+                <label for="adminKey">Admin Key</label>
+                <input type="password" id="adminKey" name="adminKey" placeholder="Enter your admin key" required>
+            </div>
+
+            <div class="form-group">
+                <label>Select CSV File</label>
+                <div class="file-input-wrapper">
+                    <input type="file" id="csvFile" name="csvFile" accept=".csv" required>
+                    <label for="csvFile" class="file-input-label" id="fileLabel">
+                        📁 Click to select CSV file<br>
+                        <small>or drag and drop here</small>
+                    </label>
+                </div>
+            </div>
+
+            <button type="submit" id="submitBtn">Upload Products</button>
+        </form>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Uploading products...</p>
+        </div>
+
+        <div class="result" id="result"></div>
+
+        <div class="template-download">
+            <strong>📥 Download:</strong> 
+            <a href="#" onclick="downloadTemplate()">Sample CSV Template</a>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = window.location.origin;
+        
+        // File input handling
+        document.getElementById('csvFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const label = document.getElementById('fileLabel');
+            if (file) {
+                label.classList.add('has-file');
+                label.innerHTML = `✅ <strong>${file.name}</strong><br><small>${(file.size / 1024).toFixed(1)} KB</small>`;
+            }
+        });
+
+        // Form submission
+        document.getElementById('uploadForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const adminKey = document.getElementById('adminKey').value;
+            const fileInput = document.getElementById('csvFile');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                showResult('Please select a CSV file', 'error');
+                return;
+            }
+
+            // Show loading
+            document.getElementById('loading').classList.add('show');
+            document.getElementById('submitBtn').disabled = true;
+            document.getElementById('result').className = 'result';
+
+            try {
+                const csvContent = await file.text();
+                
+                const response = await fetch(`${API_BASE_URL}/v1/admin/upload-products?api_key=${encodeURIComponent(adminKey)}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'text/csv'
+                    },
+                    body: csvContent
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showResult(`
+                        <strong>✅ Upload Successful!</strong><br>
+                        Total rows: ${result.summary.total_rows}<br>
+                        Created: ${result.summary.created}<br>
+                        Updated: ${result.summary.updated}<br>
+                        Errors: ${result.summary.errors}
+                    `, 'success');
+                } else {
+                    showResult(`<strong>❌ Error:</strong> ${result.error || 'Unknown error'}`, 'error');
+                }
+            } catch (error) {
+                showResult(`<strong>❌ Error:</strong> ${error.message}`, 'error');
+            } finally {
+                document.getElementById('loading').classList.remove('show');
+                document.getElementById('submitBtn').disabled = false;
+            }
+        });
+
+        function showResult(message, type) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = message;
+            resultDiv.className = 'result ' + type;
+        }
+
+        // Download template
+        function downloadTemplate() {
+            const template = `sku,name,category,stock_quantity,price,supplier_name
+DP-001,Dakpan Rood Keramiek,Dakpannen,150,0.45,Your Company Name
+DP-002,Dakpan Antraciet Beton,Dakpannen,230,0.38,Your Company Name
+EPDM-5M,EPDM Dakbedekking 5m,Dakbedekking,45,125.00,Your Company Name`;
+            
+            const blob = new Blob([template], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'product-template.csv';
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        // Drag and drop
+        const fileLabel = document.getElementById('fileLabel');
+        
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            fileLabel.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            fileLabel.addEventListener(eventName, () => {
+                fileLabel.style.borderColor = '#667eea';
+                fileLabel.style.background = '#f0f4ff';
+            }, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            fileLabel.addEventListener(eventName, () => {
+                fileLabel.style.borderColor = '';
+                fileLabel.style.background = '';
+            }, false);
+        });
+
+        fileLabel.addEventListener('drop', (e) => {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            document.getElementById('csvFile').files = files;
+            
+            if (files[0]) {
+                fileLabel.classList.add('has-file');
+                fileLabel.innerHTML = `✅ <strong>${files[0].name}</strong><br><small>${(files[0].size / 1024).toFixed(1)} KB</small>`;
+            }
+        }, false);
+    </script>
+</body>
+</html>
