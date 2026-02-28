@@ -1,0 +1,11 @@
+sku,name,category,stock_quantity,price,supplier_name,description,currency
+DP-001,Dakpan Rood Keramiek,Dakpannen,150,0.45,Defrancq,Keramische dakpan rood,EUR
+DP-002,Dakpan Antraciet Beton,Dakpannen,230,0.38,Defrancq,Betonen dakpan antraciet,EUR
+EPDM-5M,EPDM Dakbedekking 5m,Dakbedekking,45,125.00,Apok,EPDM rol 5 meter breed,EUR
+EPDM-10M,EPDM Dakbedekking 10m,Dakbedekking,23,245.00,Apok,EPDM rol 10 meter breed,EUR
+ISO-100,Isolatieplaat 100mm,Isolatie,89,28.50,BMB,PIR isolatieplaat 100mm,EUR
+ISO-150,Isolatieplaat 150mm,Isolatie,56,42.75,BMB,PIR isolatieplaat 150mm,EUR
+ZINK-ROL,Zinken Rol 0.7mm,Zink,12,890.00,Defrancq,Zinken dakrol 0.7mm dikte,EUR
+KOPER-ROL,Koperen Rol 0.6mm,Koper,8,1250.00,Defrancq,Koperen dakrol 0.6mm dikte,EUR
+DAKRAAM-VELUX,Velux Dakraam GGL,Dakramen,34,485.00,Velux Belgium,Velux GGL dakraam,EUR
+LEI-NATUUR,Natuurlei Lei,Dakleien,67,2.85,Van den Braembussche,Natuurlei voor dakbedekking,EUR
